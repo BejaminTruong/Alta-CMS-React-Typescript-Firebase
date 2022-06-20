@@ -1,14 +1,17 @@
 import { BellOutlined, MailOutlined, SearchOutlined } from "@ant-design/icons";
 import { Image, Input } from "antd";
 import React, { FC } from "react";
+import { useNavigate } from "react-router-dom";
 
 type Props = {};
 
 const NavBar: FC = (props: Props) => {
+  const navigate = useNavigate();
   return (
     <div className="flex">
-      <div className="w-1/6">
+      <div className="w-1/6 cursor-pointer">
         <Image
+          onClick={() => navigate("/")}
           preview={false}
           width={100}
           src={require("../assets/logoInsight.png")}

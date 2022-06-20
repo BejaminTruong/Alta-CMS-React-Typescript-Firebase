@@ -27,7 +27,7 @@ const Sidebar: FC = (props: Props) => {
           handleActive();
           document.getElementById("/")?.classList.add("sidebarActive");
         }}
-        className="sidebarBtn"
+        className="sidebarBtn sidebarActive"
       >
         <HomeOutlined className="sidebarIcon" />
         Trang chủ
