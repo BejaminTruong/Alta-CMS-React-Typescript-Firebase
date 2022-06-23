@@ -19,7 +19,7 @@ const Sidebar: FC = (props: Props) => {
       ?.classList.remove("font-bold", "text-darkBrown");
   };
   return (
-    <div className="flex flex-col w-1/6 pr-10 pt-10">
+    <div className="sidebarContainer">
       <button
         id="/"
         onClick={() => {

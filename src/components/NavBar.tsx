@@ -9,7 +9,7 @@ const NavBar: FC = (props: Props) => {
   const navigate = useNavigate();
   return (
     <div className="flex">
-      <div className="w-1/6 cursor-pointer">
+      <div className="w-1/6 -mr-10 cursor-pointer">
         <Image
           onClick={() => navigate("/")}
           preview={false}
@@ -17,14 +17,14 @@ const NavBar: FC = (props: Props) => {
           src={require("../assets/logoInsight.png")}
         />
       </div>
-      <div className="flex w-5/6 justify-between">
+      <div className="flex flex-1 justify-between">
         <Input
           placeholder="Search"
           suffix={<SearchOutlined style={{ fontSize: "24px" }} />}
           bordered={false}
-          className="bg-lightGray max-w-md rounded-lg"
+          className="bg-normalGray max-w-md rounded-lg p-4"
         />
-        <div className="flex w-[200px] justify-end items-center gap-4 text-xl">
+        <div className="flex w-[200px] justify-end items-center gap-4 text-xl text-extraDarkBrown">
           <MailOutlined />
           <BellOutlined />
           <Image
