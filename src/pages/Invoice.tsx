@@ -1,20 +1,28 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Input, Radio, RadioChangeEvent, Space, Table } from "antd";
+import {
+  CaretLeftOutlined,
+  CaretRightOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Input,
+  PaginationProps,
+  Radio,
+  RadioChangeEvent,
+  Space,
+  Table,
+} from "antd";
+import { ColumnsType } from "antd/lib/table";
 import React, { FC, useState } from "react";
+import useSWR from "swr";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 import CustomDatePicker from "../components/CustomDatePicker";
+import {
+  fetchData,
+  InvoiceListType,
+  selectInvoice,
+} from "../features/invoice/invoiceSlice";
 
-interface DataType {
-  key: string;
-  stt: string;
-  ticketNumber: number;
-  usageDate: Date;
-  ticketType: string;
-  checkInGate: string;
-}
-
-const dataSource: DataType[] = [];
-
-const columns = [
+const columns: ColumnsType<InvoiceListType> = [
   {
     title: "STT",
     dataIndex: "stt",
@@ -24,6 +32,11 @@ const columns = [
     title: "Số vé",
     dataIndex: "ticketNumber",
     key: "ticketNumber",
+  },
+  {
+    title: "Tên sự kiện",
+    dataIndex: "eventName",
+    key: "eventName",
   },
   {
     title: "Ngày sử dụng",
@@ -40,15 +53,47 @@ const columns = [
     dataIndex: "checkInGate",
     key: "checkInGate",
   },
+  {
+    title: "",
+    dataIndex: "control",
+    key: "control",
+    render: (text) => (
+      <>
+        {text.toLowerCase() === "đã đối soát" ? (
+          <p className="italic text-normalRed">{text}</p>
+        ) : (
+          <p className="italic text-extraDarkGray">{text}</p>
+        )}
+      </>
+    ),
+  },
 ];
 
-const Invoice: FC = () => {
-  const [value, setValue] = useState(1);
+const itemRender: PaginationProps["itemRender"] = (
+  _,
+  type,
+  originalElement
+) => {
+  if (type === "prev") {
+    return <CaretLeftOutlined className="text-normalOrange" />;
+  }
+  if (type === "next") {
+    return <CaretRightOutlined className="text-normalOrange" />;
+  }
+  return originalElement;
+};
 
-  const onChange = (e: RadioChangeEvent) => {
-    console.log("radio checked", e.target.value);
-    setValue(e.target.value);
+const Invoice: FC = () => {
+  const invoiceData = useAppSelector(selectInvoice);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const fetcher = async () => {
+    setLoading(true);
+    const fetchedInvoices = await dispatch(fetchData());
+    if (fetchedInvoices) setLoading(false);
   };
+  const { error } = useSWR("invoice/get", fetcher);
+
   return (
     <div className="invoiceContainer">
       <div className="mainContainer w-3/4">
@@ -67,9 +112,10 @@ const Invoice: FC = () => {
           </div>
         </div>
         <Table
-          dataSource={dataSource}
+          loading={loading}
+          dataSource={error ? undefined : invoiceData}
           columns={columns}
-          pagination={{ position: ["bottomCenter"] }}
+          pagination={{ position: ["bottomCenter"], itemRender }}
         />
       </div>
       <div className="sideContainer">
@@ -77,7 +123,11 @@ const Invoice: FC = () => {
         <div className="sideItems">
           <p>Tình trạng đối soát</p>
           <div className="w-1/2 justify-start">
-            <Radio.Group size="large" onChange={onChange} value={value} className="font-medium text-darkBrown">
+            <Radio.Group
+              size="large"
+              defaultValue={1}
+              className="font-medium text-darkBrown"
+            >
               <Space direction="vertical">
                 <Radio value={1}>Tất cả</Radio>
                 <Radio value={2}>Đã đối soát</Radio>

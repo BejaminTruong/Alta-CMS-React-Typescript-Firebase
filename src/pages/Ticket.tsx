@@ -1,22 +1,23 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Input, Table } from "antd";
+import {
+  CaretLeftOutlined,
+  CaretRightOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { Input, PaginationProps, Table } from "antd";
 import { FiFilter } from "react-icons/fi";
-import React, { FC } from "react";
+import { FC, useState } from "react";
+import useSWR from "swr";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import {
+  fetchData,
+  selectTicket,
+  TicketListType,
+} from "../features/ticket/ticketSlice";
+import { ColumnsType } from "antd/lib/table";
+import CustomTag from "../components/CustomTag";
+import TicketModal from "../components/TicketModal";
 
-interface DataType {
-  key: string,
-  stt: number,
-  bookingCode: string,
-  ticketNumber: number,
-  status: string,
-  usageDate: Date,
-  issueDate: Date,
-  checkInGate: string
-};
-
-const dataSource: DataType[] = [];
-
-const columns = [
+const columns: ColumnsType<TicketListType> = [
   {
     title: "STT",
     dataIndex: "stt",
@@ -28,6 +29,11 @@ const columns = [
     key: "bookingCode",
   },
   {
+    title: "Tên sự kiện",
+    dataIndex: "eventName",
+    key: "eventName",
+  },
+  {
     title: "Số vé",
     dataIndex: "ticketNumber",
     key: "ticketNumber",
@@ -36,6 +42,7 @@ const columns = [
     title: "Tình trạng sử dụng",
     dataIndex: "status",
     key: "status",
+    render: (text) => <CustomTag name={text} />,
   },
   {
     title: "Ngày sử dụng",
@@ -53,7 +60,36 @@ const columns = [
     key: "checkInGate",
   },
 ];
+
+const itemRender: PaginationProps["itemRender"] = (
+  _,
+  type,
+  originalElement
+) => {
+  if (type === "prev") {
+    return <CaretLeftOutlined className="text-normalOrange" />;
+  }
+  if (type === "next") {
+    return <CaretRightOutlined className="text-normalOrange" />;
+  }
+  return originalElement;
+};
+
 const Ticket: FC = () => {
+  const ticketData = useAppSelector(selectTicket);
+  const [loading, setLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const dispatch = useAppDispatch();
+  const fetcher = async () => {
+    setLoading(true);
+    const fetchedTickets = await dispatch(fetchData());
+    if (fetchedTickets) setLoading(false);
+  };
+  const { error } = useSWR("ticket/get", fetcher);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
   return (
     <div className="mainContainer">
       <h1 className="text-4xl font-bold">Danh sách vé</h1>
@@ -65,14 +101,23 @@ const Ticket: FC = () => {
           className="bg-lightGray max-w-md rounded-lg p-3"
         />
         <div className="flex align-baseline gap-3">
-          <button className="btnTicket">
+          <button className="btnTicket" onClick={showModal}>
             <FiFilter />
             Lọc vé
           </button>
+          <TicketModal
+            isModalVisible={isModalVisible}
+            setIsModalVisible={setIsModalVisible}
+          />
           <button className="btnTicket">Xuất file (.csv)</button>
         </div>
       </div>
-      <Table dataSource={dataSource} columns={columns} pagination={{position: ["bottomCenter"]}}/>
+      <Table
+        loading={loading}
+        dataSource={error ? undefined : ticketData}
+        columns={columns}
+        pagination={{ position: ["bottomCenter"], itemRender }}
+      />
     </div>
   );
 };

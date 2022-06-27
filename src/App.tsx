@@ -1,5 +1,4 @@
 import React, { FC } from "react";
-import { Counter } from "./features/counter/Counter";
 import "./App.css";
 import "antd/dist/antd.css";
 import Home from "./pages/Home";

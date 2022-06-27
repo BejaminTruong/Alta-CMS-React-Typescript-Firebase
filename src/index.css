@@ -10,8 +10,8 @@
 
 @layer components {
   /* Sidebar */
-  .sidebarContainer{
-    @apply flex flex-col w-1/6 pr-10 pt-10 text-darkBrown
+  .sidebarContainer {
+    @apply flex flex-col w-1/6 pr-10 pt-10 text-darkBrown;
   }
   .sidebarBtn {
     @apply flex p-4 gap-3 rounded-lg text-lg;
@@ -31,14 +31,102 @@
     @apply flex items-center gap-3 py-2 px-4 border-solid border-[1px] 
     border-normalOrange rounded-md font-bold text-lg text-normalOrange;
   }
+  .modalHeading {
+    @apply font-semibold text-base;
+  }
   /* Invoice */
-  .invoiceContainer{
-    @apply flex w-screen gap-5
+  .invoiceContainer {
+    @apply flex w-screen gap-5;
   }
-  .sideContainer{
-    @apply flex flex-col gap-5 bg-white rounded-3xl my-5 px-5 py-10 w-1/4
+  .sideContainer {
+    @apply flex flex-col gap-5 bg-white rounded-3xl my-5 px-5 py-10 w-1/4;
   }
-  .sideItems{
-    @apply flex justify-between text-extraDarkBrown font-bold
+  .sideItems {
+    @apply flex justify-between text-extraDarkBrown font-bold;
   }
+}
+
+/* Custom Antd style */
+
+/* Table */
+.ant-table {
+  @apply text-darkBrown font-medium;
+}
+.ant-table-thead > tr > th {
+  @apply font-semibold text-base bg-darkGray;
+}
+.ant-table-thead
+  > tr
+  > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+  @apply hidden;
+}
+.ant-table-tbody > tr:nth-child(even) {
+  @apply bg-darkGray;
+}
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  @apply border-none;
+}
+.ant-pagination-item-active {
+  @apply border-normalOrange;
+}
+.ant-pagination-item-active a {
+  @apply text-normalOrange;
+}
+
+/* Modal */
+.ant-modal-content {
+  @apply rounded-xl;
+}
+.ant-modal-header {
+  @apply text-center border-none rounded-xl;
+}
+.ant-modal-title {
+  @apply font-bold text-xl;
+}
+.ant-modal-body {
+  @apply text-darkBrown;
+}
+
+/* Datepicker */
+.ant-picker {
+  @apply text-2xl rounded px-3 py-2;
+}
+.ant-picker-input > input {
+  @apply font-semibold text-darkBrown;
+}
+.ant-picker-suffix {
+  @apply text-normalOrange;
+}
+.ant-picker-panel-container {
+  @apply rounded-xl;
+}
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inne {
+  @apply bg-normalOrange rounded-full text-white h-8 w-8 leading-8;
+}
+.ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before{
+  @apply border-normalOrange rounded-full -m-[1px]
+}
+.ant-picker-dropdown{
+  @apply text-base
+}
+.ant-picker-header-view{
+  @apply font-bold
+}
+.ant-picker-content > thead > tr > th{
+  @apply text-darkOrange font-semibold
+}
+.ant-picker-cell-inner{
+  @apply font-medium
+}
+.ant-picker-week-panel-row-selected td, .ant-picker-week-panel-row-selected:hover td{
+  @apply bg-normalOrange
+}
+/* .ant-picker-cell:first-child, .ant-picker-cell:last-child{
+  @apply rounded-full
+} */
+.ant-picker-week-panel-row, .ant-picker-week-panel-row-selected{
+  @apply rounded-2xl
 }

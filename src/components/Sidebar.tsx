@@ -4,9 +4,7 @@ import { HiOutlineTicket } from "react-icons/hi";
 import { TbFileInvoice } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 
-type Props = {};
-
-const Sidebar: FC = (props: Props) => {
+const Sidebar: FC = () => {
   const navigate = useNavigate();
   const handleActive = () => {
     const arr = document.getElementsByClassName("sidebarBtn");

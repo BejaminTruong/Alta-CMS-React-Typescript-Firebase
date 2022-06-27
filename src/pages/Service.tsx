@@ -1,20 +1,15 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Input, Table } from "antd";
-import React, { FC } from "react";
-interface DataType {
-  key: string;
-  comboCode: string;
-  comboName: string;
-  applyDate: Date;
-  expiryDate: Date;
-  ticketPrice: number;
-  comboPrice: number;
-  status: string;
-}
+import { CaretLeftOutlined, CaretRightOutlined, SearchOutlined } from "@ant-design/icons";
+import { FiEdit } from "react-icons/fi";
+import { Input, PaginationProps, Table } from "antd";
+import { ColumnsType } from "antd/lib/table";
+import React, { FC, useState } from "react";
+import useSWR from "swr";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import CustomTag from "../components/CustomTag";
+import { fetchData, selectService, ServiceListType } from "../features/service/service.Slice";
+import ServiceModal from "../components/ServiceModal";
 
-const dataSource: DataType[] = [];
-
-const columns = [
+const columns: ColumnsType<ServiceListType> = [
   {
     title: "STT",
     dataIndex: "stt",
@@ -44,15 +39,56 @@ const columns = [
     title: "Giá vé (VNĐ/Vé)",
     dataIndex: "ticketPrice",
     key: "ticketPrice",
+    render: (text) => <p>{text} VNĐ</p>
   },
   {
     title: "Giá Combo (VNĐ/Combo)",
     dataIndex: "comboPrice",
     key: "comboPrice",
   },
+  {
+    title: "Tình trạng",
+    dataIndex: "status",
+    key: "status",
+    render: (text) => <CustomTag name={text} />,
+  },
+  {
+    title: "",
+    dataIndex: "action",
+    key: "action",
+    render: () => <p className="text-normalOrange text-base flex gap-1 cursor-pointer"><FiEdit className="text-2xl"/> Cập nhật</p>
+  },
 ];
 
+const itemRender: PaginationProps["itemRender"] = (
+  _,
+  type,
+  originalElement
+) => {
+  if (type === "prev") {
+    return <CaretLeftOutlined className="text-normalOrange" />;
+  }
+  if (type === "next") {
+    return <CaretRightOutlined className="text-normalOrange" />;
+  }
+  return originalElement;
+};
+
 const Service: FC = () => {
+  const serviceData = useAppSelector(selectService);
+  const [loading, setLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const dispatch = useAppDispatch();
+  const fetcher = async () => {
+    setLoading(true);
+    const fetchedServices = await dispatch(fetchData());
+    if (fetchedServices) setLoading(false);
+  };
+  const { error } = useSWR("service/get", fetcher);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
   return (
     <div className="mainContainer">
       <h1 className="text-4xl font-bold">Danh sách gói vé</h1>
@@ -65,13 +101,15 @@ const Service: FC = () => {
         />
         <div className="flex align-baseline gap-3">
           <button className="btnTicket">Xuất file (.csv)</button>
-          <button className="btnTicket bg-normalOrange text-white">Thêm gói vé</button>
+          <button onClick={showModal} className="btnTicket bg-normalOrange text-white">Thêm gói vé</button>
+          <ServiceModal isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible}/>
         </div>
       </div>
       <Table
-        dataSource={dataSource}
+        loading={loading}
+        dataSource={error ? undefined : serviceData}
         columns={columns}
-        pagination={{ position: ["bottomCenter"] }}
+        pagination={{ position: ["bottomCenter"], itemRender }}
       />
     </div>
   );
