@@ -4,11 +4,22 @@ import { FC, useState } from "react";
 
 type Props = {
   format?: string;
+  placeholder?: string;
 };
 
-type PickerType = "time" | "date" | "week" | "month" | "quarter" | "year" | undefined
+type PickerType =
+  | "time"
+  | "date"
+  | "week"
+  | "month"
+  | "quarter"
+  | "year"
+  | undefined;
 
-const CustomDatePicker: FC<Props> = ({ format = "MM/YYYY" }) => {
+const CustomDatePicker: FC<Props> = ({
+  format = "MM/YYYY",
+  placeholder = "dd/mm/yy",
+}) => {
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
     console.log(date, dateString);
   };
@@ -23,13 +34,18 @@ const CustomDatePicker: FC<Props> = ({ format = "MM/YYYY" }) => {
       <DatePicker
         showToday={value !== undefined ? false : undefined}
         picker={value}
-        placeholder="dd/mm/yy"
+        placeholder={placeholder}
         onChange={onChange}
         format={format}
+        defaultValue={moment()}
         renderExtraFooter={() => (
-          <Radio.Group className="flex justify-center my-3" onChange={onChangePickerType} value={value}>
-            <Radio value="date">Theo ngày</Radio>
-            <Radio value="week">Theo tuần</Radio>
+          <Radio.Group
+            className="flex justify-center my-3"
+            onChange={onChangePickerType}
+            value={value}
+          >
+            <Radio value="date" style={{fontSize: "14px"}}>Theo ngày</Radio>
+            <Radio value="week" style={{fontSize: "14px"}}>Theo tuần</Radio>
           </Radio.Group>
         )}
       />

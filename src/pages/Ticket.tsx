@@ -5,7 +5,7 @@ import {
 } from "@ant-design/icons";
 import { Input, PaginationProps, Table } from "antd";
 import { FiFilter } from "react-icons/fi";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import useSWR from "swr";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
@@ -79,13 +79,21 @@ const Ticket: FC = () => {
   const ticketData = useAppSelector(selectTicket);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const dispatch = useAppDispatch();
+
   const fetcher = async () => {
     setLoading(true);
     const fetchedTickets = await dispatch(fetchData());
     if (fetchedTickets) setLoading(false);
   };
   const { error } = useSWR("ticket/get", fetcher);
+
+  useEffect(() => {
+    if (searchTerm === "") {
+      fetcher();
+    }
+  }, [searchTerm]);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -95,6 +103,7 @@ const Ticket: FC = () => {
       <h1 className="text-4xl font-bold">Danh sách vé</h1>
       <div className="flex justify-between my-10">
         <Input
+          onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Tìm bằng số vé"
           suffix={<SearchOutlined style={{ fontSize: "24px" }} />}
           bordered={false}
@@ -114,7 +123,13 @@ const Ticket: FC = () => {
       </div>
       <Table
         loading={loading}
-        dataSource={error ? undefined : ticketData}
+        dataSource={
+          error
+            ? undefined
+            : ticketData.filter((e) =>
+                e.ticketNumber.toString().includes(searchTerm)
+              )
+        }
         columns={columns}
         pagination={{ position: ["bottomCenter"], itemRender }}
       />

@@ -1,10 +1,10 @@
 import { RootState } from "./../../app/store";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase.config";
 import { format } from "date-fns";
 
-export interface TicketListType{
+export interface TicketListType {
   key: string;
   stt: number;
   bookingCode: string;
@@ -14,7 +14,7 @@ export interface TicketListType{
   issueDate: string;
   status: string;
   checkInGate: string;
-};
+}
 
 interface TicketType {
   ticketList: TicketListType[];
@@ -50,15 +50,21 @@ export const fetchData = createAsyncThunk("ticket/get", async () => {
   return data;
 });
 
-const initialState: TicketType = {
+const initialState = {
   ticketList: [],
   status: "pending",
-};
+} as TicketType;
 
 const ticketSlice = createSlice({
   name: "ticket",
   initialState,
-  reducers: {},
+  reducers: {
+    filterStatus: (state, action: PayloadAction<string>) => {
+      state.ticketList = state.ticketList.filter(
+        (e) => e.status.toLowerCase() === action.payload.toLowerCase()
+      );
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(fetchData.pending, (state) => {
@@ -74,6 +80,6 @@ const ticketSlice = createSlice({
   },
 });
 
-export const {} = ticketSlice.actions;
+export const { filterStatus } = ticketSlice.actions;
 export const selectTicket = (state: RootState) => state.ticket.ticketList;
 export default ticketSlice.reducer;

@@ -32,7 +32,7 @@ const CustomTag: FC<Props> = ({ name }) => {
   }, []);
   return (
     <div
-      className={`flex items-baseline justify-evenly gap-1 p-1 max-w-fit border-solid border-[1px] rounded ${className.container}`}
+      className={`flex items-baseline justify-evenly gap-1 px-2 py-1 max-w-fit border-solid border-[1px] rounded text-[12px] ${className.container}`}
     >
       <span
         className={`rounded-full w-2 h-2 inline-block ${className.dot}`}

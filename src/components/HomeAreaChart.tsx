@@ -27,6 +27,13 @@ const config = {
     fill: "l(270) 0:#ffffff 1:#FAA05F",
   },
   smooth: true,
+  options: {
+    plugins: {
+      legend: {
+        display: false
+      }
+    }
+  }
 };
 const HomeAreaChart: FC = () => {
   return (

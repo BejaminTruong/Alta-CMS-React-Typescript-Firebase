@@ -12,7 +12,7 @@ import {
   Table,
 } from "antd";
 import { ColumnsType } from "antd/lib/table";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import useSWR from "swr";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import CustomDatePicker from "../components/CustomDatePicker";
@@ -87,6 +87,12 @@ const Invoice: FC = () => {
   const invoiceData = useAppSelector(selectInvoice);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  useEffect(() => {
+    if (searchTerm === "") {
+      fetcher();
+    }
+  }, [searchTerm]);
   const fetcher = async () => {
     setLoading(true);
     const fetchedInvoices = await dispatch(fetchData());
@@ -100,20 +106,25 @@ const Invoice: FC = () => {
         <h1 className="text-4xl font-bold">Đối soát vé</h1>
         <div className="flex justify-between my-10">
           <Input
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Tìm bằng số vé"
             suffix={<SearchOutlined style={{ fontSize: "24px" }} />}
             bordered={false}
             className="bg-lightGray max-w-md rounded-lg p-3"
           />
           <div className="flex align-baseline gap-3">
-            <button className="btnTicket bg-normalOrange text-white">
-              Chốt đối soát
-            </button>
+            <button className="btnTicket">Chốt đối soát</button>
           </div>
         </div>
         <Table
           loading={loading}
-          dataSource={error ? undefined : invoiceData}
+          dataSource={
+            error
+              ? undefined
+              : invoiceData.filter((e) =>
+                  e.ticketNumber.toString().includes(searchTerm)
+                )
+          }
           columns={columns}
           pagination={{ position: ["bottomCenter"], itemRender }}
         />

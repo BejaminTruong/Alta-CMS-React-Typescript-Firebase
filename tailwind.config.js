@@ -8,6 +8,7 @@ module.exports = {
     extend: {
       colors: {
         light: "#FFFFFF",
+        lightBlue: "#27AEF9",
         normalBlue: "#4F75FF",
         lightOrange: "#F9F6F4",
         normalOrange: "#FF8A48",
@@ -21,6 +22,7 @@ module.exports = {
         normalBrown: "#EDE6E6",
         darkBrown: "#766A64",
         extraDarkBrown: "#4A3C33",
+        darkestBrown: "#4B3D36",
         darkYellow: "#FFB800",
         lightGreen: "#DEF7E0",
         normalGreen: "#03AC00",

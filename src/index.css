@@ -31,6 +31,9 @@
     @apply flex items-center gap-3 py-2 px-4 border-solid border-[1px] 
     border-normalOrange rounded-md font-bold text-lg text-normalOrange;
   }
+  .btnTicket:hover{
+    @apply bg-normalOrange text-white
+  }
   .modalHeading {
     @apply font-semibold text-base;
   }
@@ -73,10 +76,19 @@
 .ant-pagination-item-active a {
   @apply text-normalOrange;
 }
+.ant-pagination-item:hover{
+  @apply border-normalOrange
+}
+.ant-pagination-item:hover a{
+  @apply text-normalOrange
+}
+.ant-table-tbody > tr > td{
+  @apply pr-1
+}
 
 /* Modal */
 .ant-modal-content {
-  @apply rounded-xl;
+  @apply rounded-2xl;
 }
 .ant-modal-header {
   @apply text-center border-none rounded-xl;
@@ -90,10 +102,10 @@
 
 /* Datepicker */
 .ant-picker {
-  @apply text-2xl rounded px-3 py-2;
+  @apply text-2xl rounded-lg px-3 py-2;
 }
 .ant-picker-input > input {
-  @apply font-semibold text-darkBrown;
+  @apply font-semibold text-darkBrown text-base;
 }
 .ant-picker-suffix {
   @apply text-normalOrange;
@@ -124,9 +136,54 @@
 .ant-picker-week-panel-row-selected td, .ant-picker-week-panel-row-selected:hover td{
   @apply bg-normalOrange
 }
-/* .ant-picker-cell:first-child, .ant-picker-cell:last-child{
-  @apply rounded-full
-} */
 .ant-picker-week-panel-row, .ant-picker-week-panel-row-selected{
   @apply rounded-2xl
+}
+
+/* Radio & Checkbox*/
+.ant-radio-wrapper, .ant-checkbox-wrapper{
+  @apply text-base font-medium
+}
+.ant-radio-inner{
+  @apply w-6 h-6 border-lightBlue border-2
+}
+.ant-radio-checked .ant-radio-inner::after {
+  @apply scale-100
+}
+span.ant-radio + *{
+  @apply -translate-y-[3px]
+}
+.ant-checkbox-inner{
+ @apply w-6 h-6 border-2 rounded-md border-[#A5A8B1] 
+}
+.ant-checkbox-checked .ant-checkbox-inner::after{
+  transform: rotate(45deg) scale(1) translate(-50%, -60%);
+  @apply w-2 h-3
+}
+
+/* Select */
+.ant-select{
+  @apply text-base w-44 text-darkestBrown
+}
+.ant-select:not(.ant-select-customize-input) .ant-select-selector{
+  @apply rounded-md border-2
+}
+.ant-select-arrow{
+  @apply text-normalOrange
+}
+.ant-select-single.ant-select-show-arrow .ant-select-selection-item{
+  @apply font-medium
+}
+
+/* Button */
+.ant-btn-primary{
+  @apply text-darkestBrown border-darkestBrown
+}
+.ant-btn:hover{
+  @apply bg-normalOrange text-white
+}
+
+/* Input */
+.ant-input:placeholder-shown{
+  @apply italic
 }
