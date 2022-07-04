@@ -77,22 +77,28 @@ const itemRender: PaginationProps["itemRender"] = (
 
 const Ticket: FC = () => {
   const ticketData = useAppSelector(selectTicket);
-  const [loading, setLoading] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [filteredData, setFilteredData] = useState<TicketListType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const dispatch = useAppDispatch();
 
   const fetcher = async () => {
     setLoading(true);
-    const fetchedTickets = await dispatch(fetchData());
-    if (fetchedTickets) setLoading(false);
+    const fetchedData = await dispatch(fetchData());
+    if (fetchedData) {
+      setFilteredData(fetchedData.payload as TicketListType[])
+      setLoading(false);
+    }
   };
   const { error } = useSWR("ticket/get", fetcher);
-
   useEffect(() => {
     if (searchTerm === "") {
-      fetcher();
+      setFilteredData(ticketData);
     }
+    setFilteredData((prev) =>
+      prev.filter((e) => e.ticketNumber.toString().includes(searchTerm))
+    );
   }, [searchTerm]);
 
   const showModal = () => {
@@ -115,21 +121,18 @@ const Ticket: FC = () => {
             Lọc vé
           </button>
           <TicketModal
+            fetcher={fetcher}
+            ticketData={ticketData}
             isModalVisible={isModalVisible}
             setIsModalVisible={setIsModalVisible}
+            setFilteredData={setFilteredData}
           />
           <button className="btnTicket">Xuất file (.csv)</button>
         </div>
       </div>
       <Table
         loading={loading}
-        dataSource={
-          error
-            ? undefined
-            : ticketData.filter((e) =>
-                e.ticketNumber.toString().includes(searchTerm)
-              )
-        }
+        dataSource={error ? undefined : filteredData}
         columns={columns}
         pagination={{ position: ["bottomCenter"], itemRender }}
       />

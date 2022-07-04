@@ -85,20 +85,37 @@ const itemRender: PaginationProps["itemRender"] = (
 
 const Invoice: FC = () => {
   const invoiceData = useAppSelector(selectInvoice);
+  const [filteredData, setFilteredData] = useState<InvoiceListType[]>([]);
   const [loading, setLoading] = useState(false);
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState<string>("");
-  useEffect(() => {
-    if (searchTerm === "") {
-      fetcher();
-    }
-  }, [searchTerm]);
+  const [checkedStatus, setCheckedStatus] = useState<string>("");
   const fetcher = async () => {
     setLoading(true);
     const fetchedInvoices = await dispatch(fetchData());
-    if (fetchedInvoices) setLoading(false);
+    if (fetchedInvoices) {
+      setFilteredData(fetchedInvoices.payload as InvoiceListType[]);
+      setLoading(false);
+    }
   };
   const { error } = useSWR("invoice/get", fetcher);
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredData(invoiceData);
+    }
+    setFilteredData((prev) =>
+      prev.filter((e) => e.ticketNumber.toString().includes(searchTerm))
+    );
+  }, [searchTerm]);
+
+  useEffect(() => {
+    let finalFilteredData;
+    if (checkedStatus === "") fetcher();
+    finalFilteredData = invoiceData.filter(
+      (e) => e.control.toLowerCase() === checkedStatus.toLowerCase()
+    );
+    setFilteredData(finalFilteredData as InvoiceListType[]);
+  }, [checkedStatus]);
 
   return (
     <div className="invoiceContainer">
@@ -118,13 +135,7 @@ const Invoice: FC = () => {
         </div>
         <Table
           loading={loading}
-          dataSource={
-            error
-              ? undefined
-              : invoiceData.filter((e) =>
-                  e.ticketNumber.toString().includes(searchTerm)
-                )
-          }
+          dataSource={error ? undefined : filteredData}
           columns={columns}
           pagination={{ position: ["bottomCenter"], itemRender }}
         />
@@ -136,13 +147,16 @@ const Invoice: FC = () => {
           <div className="w-1/2 justify-start">
             <Radio.Group
               size="large"
-              defaultValue={1}
+              defaultValue={checkedStatus}
               className="font-medium text-darkBrown"
+              onChange={(e) => {
+                setCheckedStatus(e.target.value);
+              }}
             >
               <Space direction="vertical">
-                <Radio value={1}>Tất cả</Radio>
-                <Radio value={2}>Đã đối soát</Radio>
-                <Radio value={3}>Chưa đối soát</Radio>
+                <Radio value="">Tất cả</Radio>
+                <Radio value="Đã đối soát">Đã đối soát</Radio>
+                <Radio value="Chưa đối soát">Chưa đối soát</Radio>
               </Space>
             </Radio.Group>
           </div>

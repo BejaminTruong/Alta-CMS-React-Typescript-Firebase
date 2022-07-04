@@ -58,13 +58,7 @@ const initialState = {
 const ticketSlice = createSlice({
   name: "ticket",
   initialState,
-  reducers: {
-    filterStatus: (state, action: PayloadAction<string>) => {
-      state.ticketList = state.ticketList.filter(
-        (e) => e.status.toLowerCase() === action.payload.toLowerCase()
-      );
-    },
-  },
+  reducers: {},
   extraReducers(builder) {
     builder
       .addCase(fetchData.pending, (state) => {
@@ -80,6 +74,6 @@ const ticketSlice = createSlice({
   },
 });
 
-export const { filterStatus } = ticketSlice.actions;
+export const {} = ticketSlice.actions;
 export const selectTicket = (state: RootState) => state.ticket.ticketList;
 export default ticketSlice.reducer;

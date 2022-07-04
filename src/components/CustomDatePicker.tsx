@@ -5,6 +5,7 @@ import { FC, useState } from "react";
 type Props = {
   format?: string;
   placeholder?: string;
+  setTimeRange?: React.Dispatch<React.SetStateAction<undefined>>
 };
 
 type PickerType =
@@ -19,9 +20,11 @@ type PickerType =
 const CustomDatePicker: FC<Props> = ({
   format = "MM/YYYY",
   placeholder = "dd/mm/yy",
+  setTimeRange
 }) => {
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
     console.log(date, dateString);
+    // setTimeRange({})
   };
   const [value, setValue] = useState<PickerType>("date");
 
@@ -44,8 +47,12 @@ const CustomDatePicker: FC<Props> = ({
             onChange={onChangePickerType}
             value={value}
           >
-            <Radio value="date" style={{fontSize: "14px"}}>Theo ngày</Radio>
-            <Radio value="week" style={{fontSize: "14px"}}>Theo tuần</Radio>
+            <Radio value="date" style={{ fontSize: "14px" }}>
+              Theo ngày
+            </Radio>
+            <Radio value="week" style={{ fontSize: "14px" }}>
+              Theo tuần
+            </Radio>
           </Radio.Group>
         )}
       />
