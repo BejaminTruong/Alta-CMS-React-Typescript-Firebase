@@ -1,9 +1,16 @@
 import { RootState } from "./../../app/store";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../firebase.config";
 import { format } from "date-fns";
-
+import { FormValue } from "../../components/ServiceModal";
+import { v4 as uuidv4 } from "uuid";
 export interface ServiceListType {
   key: string;
   stt: number;
@@ -33,7 +40,7 @@ export const fetchData = createAsyncThunk("service/get", async () => {
       expiryDate,
       ticketPrice,
       comboPrice,
-      status
+      status,
     } = doc.data();
     data.push({
       key: doc.id,
@@ -49,6 +56,23 @@ export const fetchData = createAsyncThunk("service/get", async () => {
   });
   return data;
 });
+
+export const addData = createAsyncThunk(
+  "service/add",
+  async (formValue: FormValue) => {
+    await addDoc(collection(db, "service"), {
+      ...formValue,
+      comboCode: uuidv4().replaceAll("-", "").toUpperCase(),
+    });
+  }
+);
+
+export const updateData = createAsyncThunk(
+  "service/update",
+  async (formValue: FormValue) => {
+    await updateDoc(doc(db, "service", formValue.key as string), formValue);
+  }
+);
 
 const initialState: ServiceType = {
   serviceList: [],

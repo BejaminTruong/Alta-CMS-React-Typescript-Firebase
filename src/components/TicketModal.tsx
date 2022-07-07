@@ -1,16 +1,15 @@
-import _, { indexOf } from "lodash";
+import _ from "lodash";
 import { Checkbox, Col, Modal, Radio, Row } from "antd";
 import { CheckboxValueType } from "antd/lib/checkbox/Group";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { TicketListType } from "../features/ticket/ticketSlice";
 import CustomDatePicker from "./CustomDatePicker";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import moment from "moment";
 type Props = {
   isModalVisible: boolean;
   setIsModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setFilteredData: React.Dispatch<React.SetStateAction<TicketListType[]>>;
   ticketData: TicketListType[];
-  fetcher: () => Promise<void>;
 };
 
 const TicketModal: FC<Props> = ({
@@ -18,32 +17,80 @@ const TicketModal: FC<Props> = ({
   setIsModalVisible,
   setFilteredData,
   ticketData,
-  fetcher,
 }) => {
   const [checkedStatus, setCheckedStatus] = useState<string>("");
   const [checkedGate, setCheckedGate] = useState<CheckboxValueType[]>([""]);
-  const [timeRange, setTimeRange] = useState()
-  useEffect(() => {
-    console.log(checkedGate);
-  }, [checkedGate]);
+  const [startDate, setStartDate] = useState<number>();
+  const [endDate, setEndDate] = useState<number>();
 
   const handleOk = () => {
     let finalFilteredData;
-    if (checkedStatus === "" && _.isEqual(checkedGate, [""])) fetcher();
-    if (checkedStatus !== "")
-      finalFilteredData = ticketData.filter(
-        (e) => e.status.toLowerCase() === checkedStatus.toLowerCase()
-      );
-    if (!_.isEqual(checkedGate, [""]))
-      finalFilteredData = ticketData.filter((e) =>
-        _.includes(checkedGate, e.checkInGate)
-      );
-    if (checkedStatus !== "" && !_.isEqual(checkedGate, [""]))
+    if (checkedStatus !== "") {
+      if (startDate && endDate)
+        finalFilteredData = ticketData.filter(
+          (e) =>
+            e.status.toLowerCase() === checkedStatus.toLowerCase() &&
+            (startDate as number) <=
+              moment(e.usageDate, "DD/MM/YYYY").valueOf() &&
+            (endDate as number) >= moment(e.issueDate, "DD/MM/YYYY").valueOf()
+        );
+      else
+        finalFilteredData = ticketData.filter(
+          (e) => e.status.toLowerCase() === checkedStatus.toLowerCase()
+        );
+    }
+
+    if (!_.isEqual(checkedGate, [""])) {
+      if (startDate && endDate)
+        finalFilteredData = ticketData.filter(
+          (e) =>
+            _.includes(checkedGate, e.checkInGate) &&
+            (startDate as number) <=
+              moment(e.usageDate, "DD/MM/YYYY").valueOf() &&
+            (endDate as number) >= moment(e.issueDate, "DD/MM/YYYY").valueOf()
+        );
+      else
+        finalFilteredData = ticketData.filter((e) =>
+          _.includes(checkedGate, e.checkInGate)
+        );
+    }
+
+    if (
+      checkedStatus === "" &&
+      _.isEqual(checkedGate, [""]) &&
+      !startDate &&
+      !endDate
+    )
+      finalFilteredData = ticketData;
+
+    if (
+      checkedStatus !== "" &&
+      !_.isEqual(checkedGate, [""]) &&
+      startDate &&
+      endDate
+    )
       finalFilteredData = ticketData.filter(
         (e) =>
           e.status.toLowerCase() === checkedStatus.toLowerCase() &&
-          _.includes(checkedGate, e.checkInGate)
+          _.includes(checkedGate, e.checkInGate) &&
+          (startDate as number) <=
+            moment(e.usageDate, "DD/MM/YYYY").valueOf() &&
+          (endDate as number) >= moment(e.issueDate, "DD/MM/YYYY").valueOf()
       );
+
+    if (
+      checkedStatus === "" &&
+      _.isEqual(checkedGate, [""]) &&
+      startDate &&
+      endDate
+    )
+      finalFilteredData = ticketData.filter(
+        (e) =>
+          (startDate as number) <=
+            moment(e.usageDate, "DD/MM/YYYY").valueOf() &&
+          (endDate as number) >= moment(e.issueDate, "DD/MM/YYYY").valueOf()
+      );
+
     setFilteredData(finalFilteredData as TicketListType[]);
     setIsModalVisible(false);
   };
@@ -54,6 +101,24 @@ const TicketModal: FC<Props> = ({
       setCheckedGate(checkedGate);
     }
   };
+
+  const getEndDate = () => {
+    let temp = 0;
+    ticketData.forEach((e) => {
+      if (temp < moment(e.issueDate, "DD/MM/YYYY").valueOf())
+        temp = moment(e.issueDate, "DD/MM/YYYY").valueOf();
+    });
+    return moment(temp);
+  };
+
+  const getStartDate = () => {
+    let temp = Number.POSITIVE_INFINITY;
+    ticketData.forEach((e) => {
+      temp = Math.min(temp, moment(e.usageDate, "DD/MM/YYYY").valueOf());
+    });
+    return moment(temp);
+  };
+
   return (
     <div className="hidden">
       <Modal
@@ -68,11 +133,19 @@ const TicketModal: FC<Props> = ({
         <div className="flex mb-5">
           <div className="w-1/2">
             <p className="modalHeading">Từ ngày</p>
-            <CustomDatePicker setTimeRange={setTimeRange} format="DD/MM/YYYY" />
+            <CustomDatePicker
+              getStartDate={getStartDate}
+              setStartDate={setStartDate}
+              format="DD/MM/YYYY"
+            />
           </div>
           <div className="w-1/2">
             <p className="modalHeading">Đến ngày</p>
-            <CustomDatePicker setTimeRange={setTimeRange} format="DD/MM/YYYY" />
+            <CustomDatePicker
+              getEndDate={getEndDate}
+              setEndDate={setEndDate}
+              format="DD/MM/YYYY"
+            />
           </div>
         </div>
         <div>

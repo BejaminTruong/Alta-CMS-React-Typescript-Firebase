@@ -15,63 +15,8 @@ import {
   selectService,
   ServiceListType,
 } from "../features/service/service.Slice";
-import ServiceModal from "../components/ServiceModal";
-
-const columns: ColumnsType<ServiceListType> = [
-  {
-    title: "STT",
-    dataIndex: "stt",
-    key: "stt",
-  },
-  {
-    title: "Mã gói",
-    dataIndex: "comboCode",
-    key: "comboCode",
-  },
-  {
-    title: "Tên gói vé",
-    dataIndex: "comboName",
-    key: "comboName",
-  },
-  {
-    title: "Ngày áp dụng",
-    dataIndex: "applyDate",
-    key: "applyDate",
-  },
-  {
-    title: "Ngày hết hạn",
-    dataIndex: "expiryDate",
-    key: "expiryDate",
-  },
-  {
-    title: "Giá vé (VNĐ/Vé)",
-    dataIndex: "ticketPrice",
-    key: "ticketPrice",
-    render: (text) => <p>{text} VNĐ</p>,
-  },
-  {
-    title: "Giá Combo (VNĐ/Combo)",
-    dataIndex: "comboPrice",
-    key: "comboPrice",
-  },
-  {
-    title: "Tình trạng",
-    dataIndex: "status",
-    key: "status",
-    render: (text) => <CustomTag name={text} />,
-  },
-  {
-    title: "",
-    dataIndex: "action",
-    key: "action",
-    render: () => (
-      <p className="text-normalOrange text-base flex gap-1 cursor-pointer">
-        <FiEdit className="text-2xl" /> Cập nhật
-      </p>
-    ),
-  },
-];
-
+import ServiceModal, { FormValue } from "../components/ServiceModal";
+import { CSVLink, CSVDownload } from "react-csv";
 const itemRender: PaginationProps["itemRender"] = (
   _,
   type,
@@ -91,11 +36,18 @@ const Service: FC = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [editValue, setEditValue] = useState<ServiceListType>();
   useEffect(() => {
     if (searchTerm === "") {
       fetcher();
     }
   }, [searchTerm]);
+
+  useEffect(() => {
+    if (editValue) {
+      setIsModalVisible(true);
+    }
+  }, [editValue]);
   const dispatch = useAppDispatch();
   const fetcher = async () => {
     setLoading(true);
@@ -104,9 +56,66 @@ const Service: FC = () => {
   };
   const { error } = useSWR("service/get", fetcher);
 
-  const showModal = () => {
-    setIsModalVisible(true);
+  const showModal = (serviceData?: ServiceListType) => {
+    setEditValue(serviceData);
   };
+  const columns: ColumnsType<ServiceListType> = [
+    {
+      title: "STT",
+      dataIndex: "stt",
+      key: "stt",
+    },
+    {
+      title: "Mã gói",
+      dataIndex: "comboCode",
+      key: "comboCode",
+    },
+    {
+      title: "Tên gói vé",
+      dataIndex: "comboName",
+      key: "comboName",
+    },
+    {
+      title: "Ngày áp dụng",
+      dataIndex: "applyDate",
+      key: "applyDate",
+    },
+    {
+      title: "Ngày hết hạn",
+      dataIndex: "expiryDate",
+      key: "expiryDate",
+    },
+    {
+      title: "Giá vé (VNĐ/Vé)",
+      dataIndex: "ticketPrice",
+      key: "ticketPrice",
+      render: (text) => <p>{text} VNĐ</p>,
+    },
+    {
+      title: "Giá Combo (VNĐ/Combo)",
+      dataIndex: "comboPrice",
+      key: "comboPrice",
+    },
+    {
+      title: "Tình trạng",
+      dataIndex: "status",
+      key: "status",
+      render: (text) => <CustomTag name={text} />,
+    },
+    {
+      title: "",
+      dataIndex: "action",
+      key: "action",
+      render: (text, record) => (
+        <p
+          onClick={() => showModal(record)}
+          className="text-normalOrange text-base flex gap-1 cursor-pointer"
+        >
+          <FiEdit className="text-2xl" /> Cập nhật
+        </p>
+      ),
+    },
+  ];
   return (
     <div className="mainContainer">
       <h1 className="text-4xl font-bold">Danh sách gói vé</h1>
@@ -119,11 +128,15 @@ const Service: FC = () => {
           className="bg-lightGray max-w-md rounded-lg p-3"
         />
         <div className="flex align-baseline gap-3">
-          <button className="btnTicket">Xuất file (.csv)</button>
-          <button onClick={showModal} className="btnTicket">
+          <CSVLink className="btnTicket" data={serviceData}>
+            Xuất file (.csv)
+          </CSVLink>
+          <button onClick={() => setIsModalVisible(true)} className="btnTicket">
             Thêm gói vé
           </button>
           <ServiceModal
+            editValue={editValue}
+            fetcher={fetcher}
             isModalVisible={isModalVisible}
             setIsModalVisible={setIsModalVisible}
           />

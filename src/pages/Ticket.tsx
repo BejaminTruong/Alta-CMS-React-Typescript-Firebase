@@ -16,6 +16,7 @@ import {
 import { ColumnsType } from "antd/lib/table";
 import CustomTag from "../components/CustomTag";
 import TicketModal from "../components/TicketModal";
+import { CSVLink } from "react-csv";
 
 const columns: ColumnsType<TicketListType> = [
   {
@@ -83,15 +84,6 @@ const Ticket: FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const dispatch = useAppDispatch();
 
-  const fetcher = async () => {
-    setLoading(true);
-    const fetchedData = await dispatch(fetchData());
-    if (fetchedData) {
-      setFilteredData(fetchedData.payload as TicketListType[])
-      setLoading(false);
-    }
-  };
-  const { error } = useSWR("ticket/get", fetcher);
   useEffect(() => {
     if (searchTerm === "") {
       setFilteredData(ticketData);
@@ -104,6 +96,20 @@ const Ticket: FC = () => {
   const showModal = () => {
     setIsModalVisible(true);
   };
+
+  const fetcher = async () => {
+    setLoading(true);
+    const fetchedData = await dispatch(fetchData());
+    if (fetchedData) {
+      setFilteredData(fetchedData.payload as TicketListType[]);
+      setLoading(false);
+    }
+  };
+  const { error } = useSWR("ticket/get", fetcher, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+  });
+
   return (
     <div className="mainContainer">
       <h1 className="text-4xl font-bold">Danh sách vé</h1>
@@ -121,13 +127,14 @@ const Ticket: FC = () => {
             Lọc vé
           </button>
           <TicketModal
-            fetcher={fetcher}
             ticketData={ticketData}
             isModalVisible={isModalVisible}
             setIsModalVisible={setIsModalVisible}
             setFilteredData={setFilteredData}
           />
-          <button className="btnTicket">Xuất file (.csv)</button>
+          <CSVLink className="btnTicket" data={ticketData}>
+            Xuất file (.csv)
+          </CSVLink>
         </div>
       </div>
       <Table

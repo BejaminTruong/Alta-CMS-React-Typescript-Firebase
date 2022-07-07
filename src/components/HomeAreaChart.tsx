@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { Area } from "@ant-design/plots";
 import CustomDatePicker from "./CustomDatePicker";
+import moment from "moment";
 
 const data = [
   { day: "Thứ 2", value: 150000000 },
@@ -40,7 +41,7 @@ const HomeAreaChart: FC = () => {
     <div className="py-5 pr-10">
       <div className="flex w-full justify-between my-5">
         <h2 className="text-xl font-bold">Doanh thu</h2>
-        <CustomDatePicker />
+        <CustomDatePicker defaultDate={moment()}/>
       </div>
       <Area {...config} />
       <div className="my-10">

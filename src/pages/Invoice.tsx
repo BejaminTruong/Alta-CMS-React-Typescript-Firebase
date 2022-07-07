@@ -12,6 +12,7 @@ import {
   Table,
 } from "antd";
 import { ColumnsType } from "antd/lib/table";
+import moment from "moment";
 import React, { FC, useEffect, useState } from "react";
 import useSWR from "swr";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
@@ -90,15 +91,9 @@ const Invoice: FC = () => {
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [checkedStatus, setCheckedStatus] = useState<string>("");
-  const fetcher = async () => {
-    setLoading(true);
-    const fetchedInvoices = await dispatch(fetchData());
-    if (fetchedInvoices) {
-      setFilteredData(fetchedInvoices.payload as InvoiceListType[]);
-      setLoading(false);
-    }
-  };
-  const { error } = useSWR("invoice/get", fetcher);
+  const [startDate, setStartDate] = useState<number>();
+  const [endDate, setEndDate] = useState<number>();
+
   useEffect(() => {
     if (searchTerm === "") {
       setFilteredData(invoiceData);
@@ -108,14 +103,75 @@ const Invoice: FC = () => {
     );
   }, [searchTerm]);
 
-  useEffect(() => {
+  const fetcher = async () => {
+    setLoading(true);
+    const fetchedInvoices = await dispatch(fetchData());
+    if (fetchedInvoices) {
+      setFilteredData(fetchedInvoices.payload as InvoiceListType[]);
+      setLoading(false);
+    }
+  };
+  const { error } = useSWR("invoice/get", fetcher, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+  });
+
+  const handleFilter = () => {
     let finalFilteredData;
-    if (checkedStatus === "") fetcher();
-    finalFilteredData = invoiceData.filter(
-      (e) => e.control.toLowerCase() === checkedStatus.toLowerCase()
-    );
+    if (checkedStatus === "" && !startDate && !endDate)
+      finalFilteredData = invoiceData;
+
+    if (checkedStatus !== "") {
+      if (startDate && endDate)
+        finalFilteredData = invoiceData.filter(
+          (e) =>
+            e.control.toLowerCase() === checkedStatus.toLowerCase() &&
+            (startDate as number) <=
+              moment(e.usageDate, "DD/MM/YYYY").valueOf() &&
+            (endDate as number) >= moment(e.usageDate, "DD/MM/YYYY").valueOf()
+        );
+      else
+        finalFilteredData = invoiceData.filter(
+          (e) => e.control.toLowerCase() === checkedStatus.toLowerCase()
+        );
+    }
+
+    if (checkedStatus !== "" && startDate && endDate)
+      finalFilteredData = invoiceData.filter(
+        (e) =>
+          e.control.toLowerCase() === checkedStatus.toLowerCase() &&
+          (startDate as number) <=
+            moment(e.usageDate, "DD/MM/YYYY").valueOf() &&
+          (endDate as number) >= moment(e.usageDate, "DD/MM/YYYY").valueOf()
+      );
+
+    if (checkedStatus === "" && startDate && endDate)
+      finalFilteredData = invoiceData.filter(
+        (e) =>
+          (startDate as number) <=
+            moment(e.usageDate, "DD/MM/YYYY").valueOf() &&
+          (endDate as number) >= moment(e.usageDate, "DD/MM/YYYY").valueOf()
+      );
+
     setFilteredData(finalFilteredData as InvoiceListType[]);
-  }, [checkedStatus]);
+  };
+
+  const getEndDate = () => {
+    let temp = 0;
+    invoiceData.forEach((e) => {
+      if (temp < moment(e.usageDate, "DD/MM/YYYY").valueOf())
+        temp = moment(e.usageDate, "DD/MM/YYYY").valueOf();
+    });
+    return moment(temp);
+  };
+
+  const getStartDate = () => {
+    let temp = Number.POSITIVE_INFINITY;
+    invoiceData.forEach((e) => {
+      temp = Math.min(temp, moment(e.usageDate, "DD/MM/YYYY").valueOf());
+    });
+    return moment(temp);
+  };
 
   return (
     <div className="invoiceContainer">
@@ -168,16 +224,26 @@ const Invoice: FC = () => {
         <div className="sideItems">
           <p>Từ ngày</p>
           <div className="w-1/2 justify-start">
-            <CustomDatePicker format="DD/MM/YYYY" />
+            <CustomDatePicker
+              setStartDate={setStartDate}
+              getStartDate={getStartDate}
+              format="DD/MM/YYYY"
+            />
           </div>
         </div>
         <div className="sideItems">
           <p>Đến ngày</p>
           <div className="w-1/2 justify-start">
-            <CustomDatePicker format="DD/MM/YYYY" />
+            <CustomDatePicker
+              setEndDate={setEndDate}
+              getEndDate={getEndDate}
+              format="DD/MM/YYYY"
+            />
           </div>
         </div>
-        <button className="btnTicket px-16 mx-auto">Lọc</button>
+        <button onClick={handleFilter} className="btnTicket px-16 mx-auto">
+          Lọc
+        </button>
       </div>
     </div>
   );

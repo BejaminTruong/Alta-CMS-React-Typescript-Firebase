@@ -1,3 +1,4 @@
+import moment from "moment";
 import { FC } from "react";
 import CustomDatePicker from "../components/CustomDatePicker";
 import HomeAreaChart from "../components/HomeAreaChart";
@@ -9,7 +10,7 @@ const Home: FC = () => {
       <h1 className="text-4xl font-bold">Thống kê</h1>
       <HomeAreaChart />
       <div className="flex justify-evenly">
-        <CustomDatePicker />
+        <CustomDatePicker defaultDate={moment()}/>
         <HomeDonutChart title="Gói gia đình"/>
         <HomeDonutChart title="Gói sự kiện"/>
         <div className="flex flex-col gap-4 font-medium">

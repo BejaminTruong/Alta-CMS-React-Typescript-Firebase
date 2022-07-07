@@ -1,11 +1,17 @@
 import { DatePicker, DatePickerProps, Radio, RadioChangeEvent } from "antd";
+import { Timestamp } from "firebase/firestore";
 import moment from "moment";
-import { FC, useState } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
+import { FormValue } from "./ServiceModal";
 
 type Props = {
   format?: string;
   placeholder?: string;
-  setTimeRange?: React.Dispatch<React.SetStateAction<undefined>>
+  setStartDate?: Dispatch<SetStateAction<number | undefined>>;
+  setEndDate?: Dispatch<SetStateAction<number | undefined>>;
+  getStartDate?: () => moment.Moment;
+  getEndDate?: () => moment.Moment;
+  defaultDate?: moment.Moment;
 };
 
 type PickerType =
@@ -20,18 +26,28 @@ type PickerType =
 const CustomDatePicker: FC<Props> = ({
   format = "MM/YYYY",
   placeholder = "dd/mm/yy",
-  setTimeRange
+  setStartDate,
+  setEndDate,
+  getStartDate,
+  getEndDate,
+  defaultDate,
 }) => {
-  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log(date, dateString);
-    // setTimeRange({})
-  };
   const [value, setValue] = useState<PickerType>("date");
+  
+  if (getStartDate) defaultDate = getStartDate();
+  if (getEndDate) defaultDate = getEndDate();
 
   const onChangePickerType = (e: RadioChangeEvent) => {
-    console.log("radio checked", e.target.value);
     setValue(e.target.value);
   };
+
+  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
+    if (date) {
+      if (setStartDate) setStartDate(date.valueOf());
+      if (setEndDate) setEndDate(date.valueOf());
+    }
+  };
+
   return (
     <div>
       <DatePicker
@@ -40,7 +56,7 @@ const CustomDatePicker: FC<Props> = ({
         placeholder={placeholder}
         onChange={onChange}
         format={format}
-        defaultValue={moment()}
+        defaultValue={defaultDate}
         renderExtraFooter={() => (
           <Radio.Group
             className="flex justify-center my-3"
