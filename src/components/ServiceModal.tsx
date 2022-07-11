@@ -20,11 +20,15 @@ type Props = {
 
 export type FormValue = {
   key?: string;
+  comboCode?: string;
   comboName?: string;
   applyDate?: Timestamp;
   expiryDate?: Timestamp;
+  applyTime?: string;
+  expiryTime?: string;
   ticketPrice?: number;
   comboPrice?: number;
+  comboNumber?: number;
   status?: string;
 };
 
@@ -39,13 +43,14 @@ const ServiceModal: FC<Props> = ({
   const [formValue, setFormValue] = useState<FormValue>();
   const [startDate, setStartDate] = useState<number>();
   const [endDate, setEndDate] = useState<number>();
+  const [startTime, setStartTime] = useState<string>();
+  const [endTime, setEndTime] = useState<string>();
   const [serviceStatus, setServiceStatus] = useState<string>("Đang áp dụng");
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (formValue) {
-      const isEmpty = Object.values(formValue as {}).every((e) => !e);
-      if (isEmpty) console.log("form is empty or not enough");
+      console.log(formValue);
       if (formValue.applyDate && formValue.expiryDate && !editValue) {
         dispatch(addData(formValue as FormValue));
       } else {
@@ -59,21 +64,39 @@ const ServiceModal: FC<Props> = ({
   }, [serviceStatus]);
 
   const handleOk = () => {
-    let applyDate = Timestamp.fromDate(moment(startDate).toDate());
-    let expiryDate = Timestamp.fromDate(moment(endDate).toDate());
     if (editValue) {
+      let applyDate = Timestamp.fromDate(
+        moment(editValue.applyDate, "DD/MM/YYYY").toDate()
+      );
+      let expiryDate = Timestamp.fromDate(
+        moment(editValue.expiryDate, "DD/MM/YYYY").toDate()
+      );
+      let applyTime = editValue.applyTime;
+      let expiryTime = editValue.expiryTime;
+      if (startDate && endDate) {
+        applyDate = Timestamp.fromDate(moment(startDate).toDate());
+        expiryDate = Timestamp.fromDate(moment(endDate).toDate());
+      }
+      if (startTime && endTime) {
+        applyTime = startTime;
+        expiryTime = endTime;
+      }
       const { key } = editValue;
       setFormValue((prev) => ({
         ...prev,
         key,
         applyDate,
         expiryDate,
+        applyTime,
+        expiryTime,
       }));
     } else {
       setFormValue((prev) => ({
         ...prev,
-        applyDate,
-        expiryDate,
+        applyDate: Timestamp.fromDate(moment(startDate).toDate()),
+        expiryDate: Timestamp.fromDate(moment(endDate).toDate()),
+        applyTime: startTime,
+        expiryTime: endTime,
       }));
     }
     setIsModalVisible(false);
@@ -122,7 +145,14 @@ const ServiceModal: FC<Props> = ({
                 setStartDate={setStartDate}
                 format="DD/MM/YYYY"
               />
-              <CustomTimePicker />
+              <CustomTimePicker
+                defaultTime={
+                  editValue
+                    ? moment(editValue.applyTime, "hh:mm:ss")
+                    : undefined
+                }
+                setStartTime={setStartTime}
+              />
             </div>
           </div>
           <div className="flex flex-col">
@@ -137,7 +167,14 @@ const ServiceModal: FC<Props> = ({
                 setEndDate={setEndDate}
                 format="DD/MM/YYYY"
               />
-              <CustomTimePicker />
+              <CustomTimePicker
+                defaultTime={
+                  editValue
+                    ? moment(editValue.expiryTime, "hh:mm:ss")
+                    : undefined
+                }
+                setEndTime={setEndTime}
+              />
             </div>
           </div>
         </div>
@@ -187,10 +224,17 @@ const ServiceModal: FC<Props> = ({
                 />
                 <span>/</span>
                 <Input
+                  onChange={(e) =>
+                    setFormValue((prev) => ({
+                      ...prev,
+                      comboNumber: +e.target.value,
+                    }))
+                  }
                   style={{ fontStyle: "normal" }}
                   bordered={false}
-                  placeholder="Giá vé"
+                  placeholder="Số vé"
                   className="bg-extraLightGray w-20 rounded-lg py-2 px-3"
+                  defaultValue={editValue ? editValue.comboNumber : undefined}
                 />
                 <span>vé</span>
               </div>

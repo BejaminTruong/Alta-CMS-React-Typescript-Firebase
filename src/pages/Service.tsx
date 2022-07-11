@@ -15,8 +15,8 @@ import {
   selectService,
   ServiceListType,
 } from "../features/service/service.Slice";
-import ServiceModal, { FormValue } from "../components/ServiceModal";
-import { CSVLink, CSVDownload } from "react-csv";
+import ServiceModal from "../components/ServiceModal";
+import { CSVLink } from "react-csv";
 const itemRender: PaginationProps["itemRender"] = (
   _,
   type,
@@ -79,11 +79,13 @@ const Service: FC = () => {
       title: "Ngày áp dụng",
       dataIndex: "applyDate",
       key: "applyDate",
+      render: (text, record) => <p>{text} {record.applyTime}</p>
     },
     {
       title: "Ngày hết hạn",
       dataIndex: "expiryDate",
       key: "expiryDate",
+      render: (text, record) => <p>{text} {record.expiryTime}</p>
     },
     {
       title: "Giá vé (VNĐ/Vé)",
@@ -95,6 +97,7 @@ const Service: FC = () => {
       title: "Giá Combo (VNĐ/Combo)",
       dataIndex: "comboPrice",
       key: "comboPrice",
+      render: (text, record) => <p>{text} VNĐ/{record.comboNumber} Vé</p>
     },
     {
       title: "Tình trạng",

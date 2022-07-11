@@ -18,8 +18,11 @@ export interface ServiceListType {
   comboName: string;
   applyDate: string;
   expiryDate: string;
+  applyTime: string;
+  expiryTime: string;
   ticketPrice: number;
   comboPrice: number;
+  comboNumber: number;
   status: string;
 }
 
@@ -38,8 +41,11 @@ export const fetchData = createAsyncThunk("service/get", async () => {
       comboName,
       applyDate,
       expiryDate,
+      applyTime,
+      expiryTime,
       ticketPrice,
       comboPrice,
+      comboNumber,
       status,
     } = doc.data();
     data.push({
@@ -50,7 +56,10 @@ export const fetchData = createAsyncThunk("service/get", async () => {
       ticketPrice,
       applyDate: format(applyDate.toDate(), "dd/MM/yyyy"),
       expiryDate: format(expiryDate.toDate(), "dd/MM/yyyy"),
+      applyTime,
+      expiryTime,
       comboPrice,
+      comboNumber,
       status,
     });
   });
