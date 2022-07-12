@@ -14,6 +14,7 @@ import {
 import { ColumnsType } from "antd/lib/table";
 import moment from "moment";
 import React, { FC, useEffect, useState } from "react";
+import { CSVLink } from "react-csv";
 import useSWR from "swr";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import CustomDatePicker from "../components/CustomDatePicker";
@@ -21,7 +22,13 @@ import {
   fetchData,
   InvoiceListType,
   selectInvoice,
+  updateInvoiceControl,
 } from "../features/invoice/invoiceSlice";
+
+export type InvoiceControl = {
+  key: string;
+  control: string;
+};
 
 const columns: ColumnsType<InvoiceListType> = [
   {
@@ -55,7 +62,6 @@ const columns: ColumnsType<InvoiceListType> = [
     key: "checkInGate",
   },
   {
-    title: "",
     dataIndex: "control",
     key: "control",
     render: (text) => (
@@ -173,6 +179,12 @@ const Invoice: FC = () => {
     return moment(temp);
   };
 
+  const handleControl = async () => {
+    let controlArr: string[] = invoiceData.map((e) => e.key);
+    await dispatch(updateInvoiceControl(controlArr));
+    fetcher();
+  };
+
   return (
     <div className="invoiceContainer">
       <div className="mainContainer w-3/4">
@@ -186,7 +198,15 @@ const Invoice: FC = () => {
             className="bg-lightGray max-w-md rounded-lg p-3"
           />
           <div className="flex align-baseline gap-3">
-            <button className="btnTicket">Chốt đối soát</button>
+            {invoiceData.every((e) => e.control === "Chưa đối soát") ? (
+              <button onClick={handleControl} className="btnTicket">
+                Chốt đối soát
+              </button>
+            ) : (
+              <CSVLink className="btnTicket" data={invoiceData}>
+                Xuất file (.csv)
+              </CSVLink>
+            )}
           </div>
         </div>
         <Table

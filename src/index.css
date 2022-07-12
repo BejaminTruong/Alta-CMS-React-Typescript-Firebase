@@ -187,3 +187,11 @@ span.ant-radio + *{
 .ant-input:placeholder-shown{
   @apply italic
 }
+
+/* Popover */
+.ant-popover-inner{
+  @apply bg-[#FFD2A8] rounded-lg text-normalBrown font-medium
+}
+.ant-popover-arrow-content::before{
+  @apply bg-[#FFD2A8]
+}

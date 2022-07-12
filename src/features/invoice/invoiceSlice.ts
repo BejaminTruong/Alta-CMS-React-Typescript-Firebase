@@ -1,8 +1,9 @@
 import { RootState } from "./../../app/store";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase.config";
 import { format } from "date-fns";
+import { InvoiceControl } from "../../pages/Invoice";
 
 export interface InvoiceListType {
   key: string;
@@ -46,6 +47,18 @@ export const fetchData = createAsyncThunk("invoice/get", async () => {
   });
   return data;
 });
+
+export const updateInvoiceControl = createAsyncThunk(
+  "invoice/update",
+  async (controlArr: string[]) => {
+    for (let i = 0; i < controlArr.length; i++) {
+      const e = controlArr[i];
+      await updateDoc(doc(db, "invoice", e), {
+        control: "Đã đối soát",
+      });
+    }
+  }
+);
 
 const initialState: InvoiceType = {
   invoiceList: [],

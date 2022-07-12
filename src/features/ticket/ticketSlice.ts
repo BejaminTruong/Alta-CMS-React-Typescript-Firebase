@@ -1,8 +1,9 @@
 import { RootState } from "./../../app/store";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase.config";
 import { format } from "date-fns";
+import { TicketIssueDate } from "../../components/TableTicketModal";
 
 export interface TicketListType {
   key: string;
@@ -49,6 +50,25 @@ export const fetchData = createAsyncThunk("ticket/get", async () => {
   });
   return data;
 });
+
+export const updateIssueDate = createAsyncThunk(
+  "ticket/update/issueDate",
+  async (ticketIssueObj: TicketIssueDate) => {
+    await updateDoc(doc(db, "ticket", ticketIssueObj.key as string), {
+      issueDate: ticketIssueObj.issueDate,
+    });
+  }
+);
+
+export const updateTicketStatus = createAsyncThunk(
+  "ticket/update/status",
+  async (record: TicketListType) => {
+    if (record.status.toLowerCase() === "chưa sử dụng")
+      await updateDoc(doc(db, "ticket", record.key), {
+        status: "Đã sử dụng",
+      });
+  }
+);
 
 const initialState = {
   ticketList: [],
