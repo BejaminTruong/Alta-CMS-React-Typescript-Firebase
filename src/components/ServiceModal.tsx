@@ -50,7 +50,6 @@ const ServiceModal: FC<Props> = ({
 
   useEffect(() => {
     if (formValue) {
-      console.log(formValue);
       if (formValue.applyDate && formValue.expiryDate && !editValue) {
         dispatch(addData(formValue as FormValue));
       } else {
