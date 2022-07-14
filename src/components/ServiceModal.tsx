@@ -41,28 +41,43 @@ const ServiceModal: FC<Props> = ({
   editValue,
 }) => {
   const [formValue, setFormValue] = useState<FormValue>();
+  const [comboName, setComboName] = useState<string>(
+    editValue ? editValue.comboName : ""
+  );
+  const [ticketPrice, setTicketPrice] = useState<number | undefined>(
+    editValue ? editValue.ticketPrice : undefined
+  );
+  const [comboPrice, setComboPrice] = useState<number | undefined>(
+    editValue ? editValue.comboPrice : undefined
+  );
+  const [comboNumber, setComboNumber] = useState<number | undefined>(
+    editValue ? editValue.comboNumber : undefined
+  );
   const [startDate, setStartDate] = useState<number>();
   const [endDate, setEndDate] = useState<number>();
   const [startTime, setStartTime] = useState<string>();
   const [endTime, setEndTime] = useState<string>();
-  const [serviceStatus, setServiceStatus] = useState<string>("Đang áp dụng");
+  const [status, setStatus] = useState<string>(
+    editValue ? editValue.status : "Đang áp dụng"
+  );
   const [checkedPrice, setCheckedPrice] = useState(true);
   const [checkedComboPrice, setCheckedComboPrice] = useState(true);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (formValue) {
-      if (formValue.applyDate && formValue.expiryDate && !editValue) {
-        dispatch(addData(formValue as FormValue));
-      } else {
-        dispatch(updateData(formValue as FormValue));
-      }
-    }
+    dispatchAndFetch();
   }, [formValue]);
 
-  useEffect(() => {
-    setFormValue((prev) => ({ ...prev, status: serviceStatus }));
-  }, [serviceStatus]);
+  const dispatchAndFetch = async () => {
+    if (formValue) {
+      if (editValue) {
+        await dispatch(updateData(formValue as FormValue));
+      } else {
+        await dispatch(addData(formValue as FormValue));
+      }
+      fetcher();
+    }
+  };
 
   const handleOk = () => {
     if (editValue) {
@@ -83,25 +98,32 @@ const ServiceModal: FC<Props> = ({
         expiryTime = endTime;
       }
       const { key } = editValue;
-      setFormValue((prev) => ({
-        ...prev,
+      setFormValue({
         key,
+        comboName,
+        ticketPrice,
+        comboPrice,
+        comboNumber,
         applyDate,
         expiryDate,
         applyTime,
         expiryTime,
-      }));
+        status,
+      });
     } else {
-      setFormValue((prev) => ({
-        ...prev,
+      setFormValue({
+        comboName,
+        ticketPrice,
+        comboPrice,
+        comboNumber,
         applyDate: Timestamp.fromDate(moment(startDate).toDate()),
         expiryDate: Timestamp.fromDate(moment(endDate).toDate()),
         applyTime: startTime,
         expiryTime: endTime,
-      }));
+        status,
+      });
     }
     setIsModalVisible(false);
-    fetcher();
   };
 
   const handleCancel = () => setIsModalVisible(false);
@@ -122,13 +144,8 @@ const ServiceModal: FC<Props> = ({
             <span className="text-normalRed">*</span> Tên gói vé
           </p>
           <Input
-            onChange={(e) =>
-              setFormValue((prev) => ({
-                ...prev,
-                comboName: e.target.value,
-              }))
-            }
-            defaultValue={editValue ? editValue.comboName : ""}
+            onChange={(e) => setComboName(e.target.value)}
+            defaultValue={comboName}
             placeholder="Nhập tên gói vé"
             className="w-1/2 rounded-lg px-3 py-2"
           />
@@ -184,61 +201,50 @@ const ServiceModal: FC<Props> = ({
           <div className="modalHeading font-medium">
             <div className="flex items-baseline">
               <div className="flex gap-3">
-                <Checkbox onChange={(e) => setCheckedPrice(!e.target.checked)} />
+                <Checkbox
+                  onChange={(e) => setCheckedPrice(!e.target.checked)}
+                />
                 <p className="translate-y-1">Vé lẻ (vnđ/vé) với giá</p>
               </div>
               <div className="flex gap-2 mx-2 items-baseline">
                 <Input
                   disabled={checkedPrice}
-                  onChange={(e) =>
-                    setFormValue((prev) => ({
-                      ...prev,
-                      ticketPrice: +e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setTicketPrice(+e.target.value)}
                   style={{ fontStyle: "normal" }}
                   bordered={false}
                   placeholder="Giá vé"
                   className="bg-extraLightGray w-36 rounded-lg py-2 px-3"
-                  defaultValue={editValue ? editValue.ticketPrice : undefined}
+                  defaultValue={ticketPrice}
                 />
                 <span>/ vé</span>
               </div>
             </div>
             <div className="flex my-3">
               <div className="flex gap-3">
-                <Checkbox onChange={(e) => setCheckedComboPrice(!e.target.checked)} />
+                <Checkbox
+                  onChange={(e) => setCheckedComboPrice(!e.target.checked)}
+                />
                 <p className="translate-y-1">Combo vé với giá</p>
               </div>
               <div className="flex gap-2 mx-2 items-baseline">
                 <Input
                   disabled={checkedComboPrice}
-                  onChange={(e) =>
-                    setFormValue((prev) => ({
-                      ...prev,
-                      comboPrice: +e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setComboPrice(+e.target.value)}
                   style={{ fontStyle: "normal" }}
                   bordered={false}
                   placeholder="Giá vé"
                   className="bg-extraLightGray w-36 rounded-lg py-2 px-3"
-                  defaultValue={editValue ? editValue.comboPrice : undefined}
+                  defaultValue={comboPrice}
                 />
                 <span>/</span>
                 <Input
                   disabled={checkedComboPrice}
-                  onChange={(e) =>
-                    setFormValue((prev) => ({
-                      ...prev,
-                      comboNumber: +e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setComboNumber(+e.target.value)}
                   style={{ fontStyle: "normal" }}
                   bordered={false}
                   placeholder="Số vé"
                   className="bg-extraLightGray w-20 rounded-lg py-2 px-3"
-                  defaultValue={editValue ? editValue.comboNumber : undefined}
+                  defaultValue={comboNumber}
                 />
                 <span>vé</span>
               </div>
@@ -248,8 +254,8 @@ const ServiceModal: FC<Props> = ({
         <div>
           <p className="modalHeading">Tình trạng</p>
           <Select
-            onChange={(status) => setServiceStatus(status)}
-            defaultValue={editValue ? editValue.status : serviceStatus}
+            onChange={(value) => setStatus(value)}
+            defaultValue={status}
             style={{ width: "170px" }}
           >
             <Option value="Đang áp dụng">Đang áp dụng</Option>
