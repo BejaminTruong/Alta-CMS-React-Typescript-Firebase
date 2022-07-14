@@ -46,6 +46,8 @@ const ServiceModal: FC<Props> = ({
   const [startTime, setStartTime] = useState<string>();
   const [endTime, setEndTime] = useState<string>();
   const [serviceStatus, setServiceStatus] = useState<string>("Đang áp dụng");
+  const [checkedPrice, setCheckedPrice] = useState(true);
+  const [checkedComboPrice, setCheckedComboPrice] = useState(true);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -182,11 +184,12 @@ const ServiceModal: FC<Props> = ({
           <div className="modalHeading font-medium">
             <div className="flex items-baseline">
               <div className="flex gap-3">
-                <Checkbox />
+                <Checkbox onChange={(e) => setCheckedPrice(!e.target.checked)} />
                 <p className="translate-y-1">Vé lẻ (vnđ/vé) với giá</p>
               </div>
               <div className="flex gap-2 mx-2 items-baseline">
                 <Input
+                  disabled={checkedPrice}
                   onChange={(e) =>
                     setFormValue((prev) => ({
                       ...prev,
@@ -204,11 +207,12 @@ const ServiceModal: FC<Props> = ({
             </div>
             <div className="flex my-3">
               <div className="flex gap-3">
-                <Checkbox />
+                <Checkbox onChange={(e) => setCheckedComboPrice(!e.target.checked)} />
                 <p className="translate-y-1">Combo vé với giá</p>
               </div>
               <div className="flex gap-2 mx-2 items-baseline">
                 <Input
+                  disabled={checkedComboPrice}
                   onChange={(e) =>
                     setFormValue((prev) => ({
                       ...prev,
@@ -223,6 +227,7 @@ const ServiceModal: FC<Props> = ({
                 />
                 <span>/</span>
                 <Input
+                  disabled={checkedComboPrice}
                   onChange={(e) =>
                     setFormValue((prev) => ({
                       ...prev,

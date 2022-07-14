@@ -1,17 +1,17 @@
 import _ from "lodash";
 import { Checkbox, Col, Modal, Radio, Row } from "antd";
 import { CheckboxValueType } from "antd/lib/checkbox/Group";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { TicketListType } from "../features/ticket/ticketSlice";
 import CustomDatePicker from "./CustomDatePicker";
 import moment from "moment";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 type Props = {
   isModalVisible: boolean;
   setIsModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setFilteredData: React.Dispatch<React.SetStateAction<TicketListType[]>>;
   ticketData: TicketListType[];
 };
-
 const TicketModal: FC<Props> = ({
   isModalVisible,
   setIsModalVisible,
@@ -22,7 +22,7 @@ const TicketModal: FC<Props> = ({
   const [checkedGate, setCheckedGate] = useState<CheckboxValueType[]>([""]);
   const [startDate, setStartDate] = useState<number>();
   const [endDate, setEndDate] = useState<number>();
-
+  
   const handleOk = () => {
     let finalFilteredData;
     if (checkedStatus !== "") {
@@ -91,14 +91,30 @@ const TicketModal: FC<Props> = ({
           (endDate as number) >= moment(e.issueDate, "DD/MM/YYYY").valueOf()
       );
 
+    if (
+      checkedStatus !== "" &&
+      !_.isEqual(checkedGate, [""]) &&
+      !startDate &&
+      !endDate
+    )
+      finalFilteredData = ticketData.filter(
+        (e) =>
+          e.status.toLowerCase() === checkedStatus.toLowerCase() &&
+          _.includes(checkedGate, e.checkInGate)
+      );
+
     setFilteredData(finalFilteredData as TicketListType[]);
     setIsModalVisible(false);
   };
-  const handleCancel = () => setIsModalVisible(false);
-  const handleCheckedOne = () => {
+
+  const handleCheckedOne = (e: CheckboxChangeEvent) => {
     if (_.isEqual(checkedGate, [""])) {
-      checkedGate.pop();
-      setCheckedGate(checkedGate);
+      setCheckedGate((prev) => prev.filter((c) => c !== ""));
+    }
+    if (!checkedGate.includes(e.target.value)) {
+      setCheckedGate((prev) => [...prev, e.target.value]);
+    } else {
+      setCheckedGate((prev) => prev.filter((c) => c !== e.target.value));
     }
   };
 
@@ -127,7 +143,7 @@ const TicketModal: FC<Props> = ({
         footer={null}
         title="Lọc vé"
         visible={isModalVisible}
-        onCancel={handleCancel}
+        onCancel={() => setIsModalVisible(false)}
         width={600}
       >
         <div className="flex mb-5">
@@ -151,9 +167,7 @@ const TicketModal: FC<Props> = ({
         <div>
           <p className="modalHeading text-darkestBrown">Tình trạng sử dụng</p>
           <Radio.Group
-            onChange={(e) => {
-              setCheckedStatus(e.target.value);
-            }}
+            onChange={(e) => setCheckedStatus(e.target.value)}
             defaultValue={checkedStatus}
           >
             <Radio value="">Tất cả</Radio>
@@ -164,19 +178,10 @@ const TicketModal: FC<Props> = ({
         </div>
         <div className="my-5">
           <p className="modalHeading text-darkestBrown">Cổng Check - in</p>
-          <Checkbox.Group
-            onChange={(checkedValues) => {
-              if (checkedValues.includes("")) {
-                checkedValues = [""];
-              }
-              setCheckedGate(checkedValues);
-            }}
-            style={{ width: "100%" }}
-            defaultValue={checkedGate}
-          >
+          <Checkbox.Group style={{ width: "100%" }} value={checkedGate}>
             <Row>
               <Col span={8}>
-                <Checkbox onChange={handleCheckedOne} value="">
+                <Checkbox onChange={() => setCheckedGate([""])} value="">
                   Tất cả
                 </Checkbox>
               </Col>
