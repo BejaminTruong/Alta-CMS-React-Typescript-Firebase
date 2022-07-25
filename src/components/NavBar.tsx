@@ -18,6 +18,7 @@ import { auth } from "../firebase.config";
 type Props = {};
 
 type UserProfile = {
+  accessToken: string;
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
@@ -30,7 +31,12 @@ const NavBar: FC<Props> = () => {
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        let token: string = "";
+        user.getIdToken().then((res) => {
+          token = res;
+        });
         setSignedIn({
+          accessToken: token,
           email: user.email,
           displayName: user.displayName,
           photoURL: user.photoURL,
@@ -48,7 +54,12 @@ const NavBar: FC<Props> = () => {
       const provider = new FacebookAuthProvider();
       let result = await signInWithPopup(auth, provider);
       let user = result.user;
+      let token: string = "";
+      user.getIdToken().then((res) => {
+        token = res;
+      });
       setSignedIn({
+        accessToken: token,
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
@@ -92,7 +103,7 @@ const NavBar: FC<Props> = () => {
             height={48}
             src={
               signedIn?.email
-                ? signedIn.photoURL
+                ? signedIn.photoURL + `?access_token=${signedIn.accessToken}`
                 : require("../assets/avatarNav.png")
             }
             className="rounded-full inline-block cursor-pointer"
@@ -111,7 +122,7 @@ const NavBar: FC<Props> = () => {
                 onClick={signInWithFacebook}
                 className="btnTicket mx-auto text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white"
               >
-                <FacebookOutlined className="text-2xl -translate-y-[2px]"/>
+                <FacebookOutlined className="text-2xl -translate-y-[2px]" />
                 Đăng nhập bằng Facebook
               </button>
             ) : (
