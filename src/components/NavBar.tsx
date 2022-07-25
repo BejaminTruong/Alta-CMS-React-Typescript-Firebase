@@ -1,4 +1,9 @@
-import { BellOutlined, MailOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  BellOutlined,
+  FacebookOutlined,
+  MailOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { Image, Input, Modal } from "antd";
 import {
   FacebookAuthProvider,
@@ -85,7 +90,11 @@ const NavBar: FC<Props> = () => {
             preview={false}
             width={48}
             height={48}
-            src={require("../assets/avatarNav.png")}
+            src={
+              signedIn?.email
+                ? signedIn.photoURL
+                : require("../assets/avatarNav.png")
+            }
             className="rounded-full inline-block cursor-pointer"
           />
           <Modal
@@ -100,8 +109,9 @@ const NavBar: FC<Props> = () => {
             {!signedIn?.email ? (
               <button
                 onClick={signInWithFacebook}
-                className="btnTicket mx-auto"
+                className="btnTicket mx-auto text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white"
               >
+                <FacebookOutlined className="text-2xl -translate-y-[2px]"/>
                 Đăng nhập bằng Facebook
               </button>
             ) : (
