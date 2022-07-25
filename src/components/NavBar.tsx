@@ -2,12 +2,9 @@ import { BellOutlined, MailOutlined, SearchOutlined } from "@ant-design/icons";
 import { Image, Input, Modal } from "antd";
 import {
   FacebookAuthProvider,
-  getRedirectResult,
   onAuthStateChanged,
   signInWithPopup,
-  signInWithRedirect,
   signOut,
-  User,
 } from "firebase/auth";
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,29 +23,15 @@ const NavBar: FC<Props> = () => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const navigate = useNavigate();
   useEffect(() => {
-    // onAuthStateChanged(auth, async (user) => {
-    // if (user) {
-    //   console.log(user);
-    //   setSignedIn({
-    //     email: user.email,
-    //     displayName: user.displayName,
-    //     photoURL: user.photoURL,
-    //   });
-    // } else console.log("user is signed out");
-    // });
-    getRedirectResult(auth)
-      .then((res) => {
-        if (res) {
-          const user = res.user;
-          console.log(user);
-          setSignedIn({
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-          });
-        } else console.log("user is signed out");
-      })
-      .catch((err) => console.log(err));
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setSignedIn({
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        });
+      } else console.log("user is signed out");
+    });
   }, []);
 
   useEffect(() => {
@@ -58,14 +41,13 @@ const NavBar: FC<Props> = () => {
   const signInWithFacebook = async () => {
     try {
       const provider = new FacebookAuthProvider();
-      // let result = await signInWithPopup(auth, provider);
-      await signInWithRedirect(auth, provider);
-      // let user = result.user;
-      // setSignedIn({
-      //   email: user.email,
-      //   displayName: user.displayName,
-      //   photoURL: user.photoURL,
-      // });
+      let result = await signInWithPopup(auth, provider);
+      let user = result.user;
+      setSignedIn({
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      });
     } catch (error: any) {
       console.log(error);
       const errorCode = error.code;
