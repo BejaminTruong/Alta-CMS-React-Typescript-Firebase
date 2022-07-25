@@ -79,13 +79,21 @@ const Service: FC = () => {
       title: "Ngày áp dụng",
       dataIndex: "applyDate",
       key: "applyDate",
-      render: (text, record) => <p>{text} {record.applyTime}</p>
+      render: (text, record) => (
+        <p>
+          {text} {record.applyTime}
+        </p>
+      ),
     },
     {
       title: "Ngày hết hạn",
       dataIndex: "expiryDate",
       key: "expiryDate",
-      render: (text, record) => <p>{text} {record.expiryTime}</p>
+      render: (text, record) => (
+        <p>
+          {text} {record.expiryTime}
+        </p>
+      ),
     },
     {
       title: "Giá vé (VNĐ/Vé)",
@@ -97,7 +105,11 @@ const Service: FC = () => {
       title: "Giá Combo (VNĐ/Combo)",
       dataIndex: "comboPrice",
       key: "comboPrice",
-      render: (text, record) => <p>{text} VNĐ/{record.comboNumber} Vé</p>
+      render: (text, record) => (
+        <p>
+          {text} VNĐ/{record.comboNumber} Vé
+        </p>
+      ),
     },
     {
       title: "Tình trạng",
@@ -139,6 +151,7 @@ const Service: FC = () => {
           </button>
           <ServiceModal
             editValue={editValue}
+            setEditValue={setEditValue}
             fetcher={fetcher}
             isModalVisible={isModalVisible}
             setIsModalVisible={setIsModalVisible}

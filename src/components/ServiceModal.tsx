@@ -16,6 +16,9 @@ type Props = {
   setIsModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
   fetcher: () => Promise<void>;
   editValue: ServiceListType | undefined;
+  setEditValue: React.Dispatch<
+    React.SetStateAction<ServiceListType | undefined>
+  >;
 };
 
 export type FormValue = {
@@ -39,27 +42,18 @@ const ServiceModal: FC<Props> = ({
   setIsModalVisible,
   fetcher,
   editValue,
+  setEditValue,
 }) => {
   const [formValue, setFormValue] = useState<FormValue>();
-  const [comboName, setComboName] = useState<string>(
-    editValue ? editValue.comboName : ""
-  );
-  const [ticketPrice, setTicketPrice] = useState<number | undefined>(
-    editValue ? editValue.ticketPrice : undefined
-  );
-  const [comboPrice, setComboPrice] = useState<number | undefined>(
-    editValue ? editValue.comboPrice : undefined
-  );
-  const [comboNumber, setComboNumber] = useState<number | undefined>(
-    editValue ? editValue.comboNumber : undefined
-  );
+  const [comboName, setComboName] = useState<string>("");
+  const [ticketPrice, setTicketPrice] = useState<number>();
+  const [comboPrice, setComboPrice] = useState<number>();
+  const [comboNumber, setComboNumber] = useState<number>();
   const [startDate, setStartDate] = useState<number>();
   const [endDate, setEndDate] = useState<number>();
   const [startTime, setStartTime] = useState<string>();
   const [endTime, setEndTime] = useState<string>();
-  const [status, setStatus] = useState<string>(
-    editValue ? editValue.status : "Đang áp dụng"
-  );
+  const [status, setStatus] = useState<string>("Đang áp dụng");
   const [checkedPrice, setCheckedPrice] = useState(true);
   const [checkedComboPrice, setCheckedComboPrice] = useState(true);
   const dispatch = useAppDispatch();
@@ -126,7 +120,10 @@ const ServiceModal: FC<Props> = ({
     setIsModalVisible(false);
   };
 
-  const handleCancel = () => setIsModalVisible(false);
+  const handleCancel = () => {
+    setEditValue(undefined);
+    setIsModalVisible(false)
+  };
   return (
     <div className="hidden">
       <Modal
@@ -145,7 +142,7 @@ const ServiceModal: FC<Props> = ({
           </p>
           <Input
             onChange={(e) => setComboName(e.target.value)}
-            defaultValue={comboName}
+            defaultValue={editValue ? editValue.comboName : comboName}
             placeholder="Nhập tên gói vé"
             className="w-1/2 rounded-lg px-3 py-2"
           />
@@ -214,7 +211,7 @@ const ServiceModal: FC<Props> = ({
                   bordered={false}
                   placeholder="Giá vé"
                   className="bg-extraLightGray w-36 rounded-lg py-2 px-3"
-                  defaultValue={ticketPrice}
+                  defaultValue={editValue ? editValue.ticketPrice : ticketPrice}
                 />
                 <span>/ vé</span>
               </div>
@@ -234,7 +231,7 @@ const ServiceModal: FC<Props> = ({
                   bordered={false}
                   placeholder="Giá vé"
                   className="bg-extraLightGray w-36 rounded-lg py-2 px-3"
-                  defaultValue={comboPrice}
+                  defaultValue={editValue ? editValue.comboPrice : comboPrice}
                 />
                 <span>/</span>
                 <Input
@@ -244,7 +241,7 @@ const ServiceModal: FC<Props> = ({
                   bordered={false}
                   placeholder="Số vé"
                   className="bg-extraLightGray w-20 rounded-lg py-2 px-3"
-                  defaultValue={comboNumber}
+                  defaultValue={editValue ? editValue.comboNumber : comboNumber}
                 />
                 <span>vé</span>
               </div>
@@ -255,7 +252,7 @@ const ServiceModal: FC<Props> = ({
           <p className="modalHeading">Tình trạng</p>
           <Select
             onChange={(value) => setStatus(value)}
-            defaultValue={status}
+            defaultValue={editValue ? editValue.status : status}
             style={{ width: "170px" }}
           >
             <Option value="Đang áp dụng">Đang áp dụng</Option>

@@ -1,19 +1,90 @@
 import { BellOutlined, MailOutlined, SearchOutlined } from "@ant-design/icons";
-import { Image, Input } from "antd";
-import React, { FC } from "react";
+import { Image, Input, Modal } from "antd";
+import {
+  FacebookAuthProvider,
+  getRedirectResult,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+  User,
+} from "firebase/auth";
+import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase.config";
 
 type Props = {};
 
-const NavBar: FC = (props: Props) => {
+type UserProfile = {
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+};
+
+const NavBar: FC<Props> = () => {
+  const [signedIn, setSignedIn] = useState<UserProfile>();
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const navigate = useNavigate();
+  useEffect(() => {
+    // onAuthStateChanged(auth, async (user) => {
+    // if (user) {
+    //   console.log(user);
+    //   setSignedIn({
+    //     email: user.email,
+    //     displayName: user.displayName,
+    //     photoURL: user.photoURL,
+    //   });
+    // } else console.log("user is signed out");
+    // });
+    getRedirectResult(auth)
+      .then((res) => {
+        if (res) {
+          const user = res.user;
+          console.log(user);
+          setSignedIn({
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+          });
+        } else console.log("user is signed out");
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    console.log(signedIn);
+  }, [signedIn]);
+
+  const signInWithFacebook = async () => {
+    try {
+      const provider = new FacebookAuthProvider();
+      // let result = await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
+      // let user = result.user;
+      // setSignedIn({
+      //   email: user.email,
+      //   displayName: user.displayName,
+      //   photoURL: user.photoURL,
+      // });
+    } catch (error: any) {
+      console.log(error);
+      const errorCode = error.code;
+      console.log(errorCode);
+      const errorMessage = error.message;
+      console.log(errorMessage);
+      const email = error.customData.email;
+      console.log(email);
+      const credential = FacebookAuthProvider.credentialFromError(error);
+      console.log(credential);
+    }
+  };
   return (
     <div className="flex">
       <div className="w-1/6 -mr-10 cursor-pointer">
         <Image
           onClick={() => navigate("/")}
           preview={false}
-          width={100}
+          width={130}
           src={require("../assets/logoInsight.png")}
         />
       </div>
@@ -28,12 +99,58 @@ const NavBar: FC = (props: Props) => {
           <MailOutlined />
           <BellOutlined />
           <Image
+            onClick={() => setIsModalVisible(true)}
             preview={false}
             width={48}
             height={48}
             src={require("../assets/avatarNav.png")}
-            className="rounded-full inline-block"
+            className="rounded-full inline-block cursor-pointer"
           />
+          <Modal
+            centered
+            closable={false}
+            footer={null}
+            title="Hồ sơ người dùng"
+            visible={isModalVisible}
+            onCancel={() => setIsModalVisible(false)}
+            width={500}
+          >
+            {!signedIn?.email ? (
+              <button
+                onClick={signInWithFacebook}
+                className="btnTicket mx-auto"
+              >
+                Đăng nhập bằng Facebook
+              </button>
+            ) : (
+              <>
+                <div className="text-xl text-extraDarkBrown">
+                  <p>
+                    <span className="font-bold">Tên</span>:{" "}
+                    {signedIn?.displayName}
+                  </p>
+                  <p>
+                    <span className="font-bold">Email</span>: {signedIn?.email}
+                  </p>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      await signOut(auth);
+                      setSignedIn(undefined);
+                      setIsModalVisible(false);
+                      console.log("User signed out!");
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  }}
+                  className="btnTicket border-normalRed text-normalRed hover:bg-normalRed hover:text-white mx-auto mt-5"
+                >
+                  Đăng xuất
+                </button>
+              </>
+            )}
+          </Modal>
         </div>
       </div>
     </div>
