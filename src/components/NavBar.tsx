@@ -18,7 +18,6 @@ import { auth } from "../firebase.config";
 type Props = {};
 
 type UserProfile = {
-  accessToken: string;
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
@@ -31,13 +30,10 @@ const NavBar: FC<Props> = () => {
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        user.getIdToken().then((res) => {
-          setSignedIn({
-            accessToken: res,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-          });
+        setSignedIn({
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
         });
       } else console.log("user is signed out");
     });
@@ -52,14 +48,10 @@ const NavBar: FC<Props> = () => {
       const provider = new FacebookAuthProvider();
       let result = await signInWithPopup(auth, provider);
       let user = result.user;
-      user.getIdToken().then((res) => {
-        console.log(res);
-        setSignedIn({
-          accessToken: res,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-        });
+      setSignedIn({
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
       });
     } catch (error: any) {
       console.log(error);
@@ -98,11 +90,7 @@ const NavBar: FC<Props> = () => {
             preview={false}
             width={48}
             height={48}
-            src={
-              signedIn?.email
-                ? signedIn.photoURL + `?access_token=${signedIn.accessToken}`
-                : require("../assets/avatarNav.png")
-            }
+            src={require("../assets/avatarNav.png")}
             className="rounded-full inline-block cursor-pointer"
           />
           <Modal
