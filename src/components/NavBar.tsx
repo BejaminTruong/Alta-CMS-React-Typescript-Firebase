@@ -31,16 +31,13 @@ const NavBar: FC<Props> = () => {
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        let token: string = "";
         user.getIdToken().then((res) => {
-          console.log(res);
-          token = res;
-        });
-        setSignedIn({
-          accessToken: token,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
+          setSignedIn({
+            accessToken: res,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+          });
         });
       } else console.log("user is signed out");
     });
@@ -55,16 +52,14 @@ const NavBar: FC<Props> = () => {
       const provider = new FacebookAuthProvider();
       let result = await signInWithPopup(auth, provider);
       let user = result.user;
-      let token: string = "";
       user.getIdToken().then((res) => {
         console.log(res);
-        token = res;
-      });
-      setSignedIn({
-        accessToken: token,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
+        setSignedIn({
+          accessToken: res,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        });
       });
     } catch (error: any) {
       console.log(error);
