@@ -18,7 +18,7 @@ import { auth } from "../firebase.config";
 type Props = {};
 
 type UserProfile = {
-  accessToken: Promise<string>;
+  accessToken: string;
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
@@ -32,8 +32,12 @@ const NavBar: FC<Props> = () => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         let token: string = "";
+        user.getIdToken().then((res) => {
+          console.log(res);
+          token = res;
+        });
         setSignedIn({
-          accessToken: user.getIdToken(),
+          accessToken: token,
           email: user.email,
           displayName: user.displayName,
           photoURL: user.photoURL,
@@ -51,8 +55,13 @@ const NavBar: FC<Props> = () => {
       const provider = new FacebookAuthProvider();
       let result = await signInWithPopup(auth, provider);
       let user = result.user;
+      let token: string = "";
+      user.getIdToken().then((res) => {
+        console.log(res);
+        token = res;
+      });
       setSignedIn({
-        accessToken: user.getIdToken(),
+        accessToken: token,
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
